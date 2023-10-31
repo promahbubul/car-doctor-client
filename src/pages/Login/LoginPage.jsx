@@ -1,21 +1,37 @@
 import React, { useContext } from "react";
 import loginImg from "../../assets/images/login/login.svg";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../provider/AuthProvider";
+import Swal from "sweetalert2";
+import axios from "axios";
 
 const LoginPage = () => {
   const { signIn } = useContext(AuthContext);
+  const location = useLocation();
+  console.log(location);
+  const navigate = useNavigate();
   const handleLogin = (e) => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
-    const loginUser = { email, password };
-    console.log(loginUser);
-    loginUser(email, password)
+
+    signIn(email, password)
       .then((result) => {
-        const user = result.user;
-        console.log(user);
+        const logedInUser = result.user;
+        console.log(logedInUser);
+        Swal.fire({
+          icon: "success",
+          title: "User Login SuccessFully",
+          timer: 1000,
+          showConfirmButton: false,
+        });
+        const user = { email };
+        // navigate(location?.state ? location?.state : "/");
+        // get access token
+        axios.post("http://localhost:5000/jwt", user).then((res) => {
+          console.log(res.data);
+        });
       })
       .catch((error) => {
         console.error(error);
@@ -39,6 +55,7 @@ const LoginPage = () => {
                 placeholder="email"
                 className="input input-bordered"
                 required
+                name="email"
               />
             </div>
             <div className="form-control">
